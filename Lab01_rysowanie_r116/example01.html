@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<!-- It's the HTML5 standard. -->
+
+<html>
+  <head>
+    <title>Example 01 - triangle and square</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
+
+    <!-- The following meta line optimizes the site for mobile devices. 
+		 It sets the viewport size to the screen size, so it will be displayed maximized, but unscaled. -->
+    <meta
+      name="viewport"
+      content="width=device-width, height=device-height, initial-scale=1"
+    />
+    <style type="text/css">
+      body {
+        /* Set the background color of the HTML page to black */
+        background-color: #000000;
+
+        /* Hide oversized content. This prevents the scroll bars. */
+        overflow: hidden;
+      }
+    </style>
+    <!-- Include Three.js library -->
+    <script src="three.js"></script>
+  </head>
+  <body>
+    <!-- This is the DIV element which will contain the WebGL canvas. To be identifiable later on, the id 'WebGLCanvas' is applied to it. -->
+    <div id="WebGLCanvas"></div>
+
+    <!-- This JavaScript block encloses the Three.js commands -->
+    <script>
+      // Global scene object
+      var scene;
+
+      // Global camera object
+      var camera;
+
+      var triangleMesh;
+
+      var triangleMesh2;
+
+      var triangleMesh3;
+
+      var squareMesh;
+
+      var TriangleMeshHouse;
+
+      var triangleMeshAnimation;
+      var triangleMeshAnimation2;
+      var triangleMeshAnimation3;
+
+      var SquareTreeMesh;
+      var SquareTreeMesh2;
+
+      var circle;
+      var circle2;
+
+      var SquareCarBottomMesh;
+      var SquareCarTopMesh;
+
+      var LightsMesh;
+
+      var SquareTreeMesh3;
+      var SquareTreeMesh4;
+
+      var pyramidMesh;
+      var pyramidMesh2;
+      var pyramidMesh3;
+
+      // Initialize the scene
+      initializeScene();
+
+      // Render the scene (map the 3D world to the 2D scene)
+      animateScene();
+
+      /**
+       * Initialize the scene.
+       */
+      function initializeScene() {
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+
+        // Set the background color of the renderer to black, with full opacity
+        renderer.setClearColor(0x000000, 1);
+
+        // Get the size of the inner window (content area) to create a full size renderer
+        canvasWidth = window.innerWidth;
+        canvasHeight = window.innerHeight;
+
+        // Set the renderers size to the content areas size
+        renderer.setSize(canvasWidth, canvasHeight);
+
+        // Get the DIV element from the HTML document by its ID and append the renderers DOM
+        // object to it
+        document.getElementById("WebGLCanvas").appendChild(renderer.domElement);
+
+        // Create the scene, in which all objects are stored (e. g. camera, lights,
+        // geometries, ...)
+        scene = new THREE.Scene();
+
+        // Define camera and add it to the scene.
+        camera = new THREE.PerspectiveCamera(
+          45,
+          canvasWidth / canvasHeight,
+          1,
+          100
+        );
+        camera.position.set(0, 0, 10);
+        camera.lookAt(scene.position);
+        scene.add(camera);
+
+        // Create the triangle (or any arbitrary geometry).
+        var triangleGeometry = new THREE.Geometry();
+        triangleGeometry.vertices.push(new THREE.Vector3(0.0, 1.0, 0.0));
+        triangleGeometry.vertices.push(new THREE.Vector3(-1.0, -1.0, 0.0));
+        triangleGeometry.vertices.push(new THREE.Vector3(1.0, -1.0, 0.0));
+        triangleGeometry.faces.push(new THREE.Face3(0, 1, 2));
+
+        var triangleGeometry2 = new THREE.Geometry();
+        triangleGeometry2.vertices.push(new THREE.Vector3(0.0, 1.0, 0.0));
+        triangleGeometry2.vertices.push(new THREE.Vector3(0, -1.0, -1.0));
+        triangleGeometry2.vertices.push(new THREE.Vector3(0, -1.0, 1.0));
+        triangleGeometry2.faces.push(new THREE.Face3(0, 1, 2));
+
+        // To color the surface, a material has to be created.
+        // We use MeshBasicMaterial
+        // from which we need in this example only 'color'.
+
+        // Create a white basic material and activate the 'doubleSided' attribute to force the
+        // rendering of both sides of each face (front and back). This prevents the so called
+        // 'backface culling'. Usually, only the side is rendered, whose normal vector points
+        // towards the camera. The other side is not rendered (backface culling). But this
+        // performance optimization sometimes leads to wholes in the surface. When this happens
+        // in your surface, simply set 'doubleSided' to 'true'.
+        var triangleMaterial = new THREE.MeshBasicMaterial({
+          color: 0x008000,
+          side: THREE.DoubleSide,
+        });
+        var triangleMaterial2 = new THREE.MeshBasicMaterial({
+          color: 0x006400,
+          side: THREE.DoubleSide,
+        });
+
+        // Create a mesh and insert the geometry and the material. Translate the whole mesh
+        // by -1.5 on the x axis and by 4 on the z axis. Finally add the mesh to the scene.
+        triangleMesh = new THREE.Mesh(triangleGeometry, triangleMaterial);
+        triangleMesh.position.set(-2.5, 3.0, 0.0);
+        scene.add(triangleMesh);
+        triangleMesh2 = new THREE.Mesh(triangleGeometry, triangleMaterial);
+        triangleMesh2.position.set(-2.5, 0.0, 0.0);
+        scene.add(triangleMesh2);
+        triangleMesh3 = new THREE.Mesh(triangleGeometry, triangleMaterial);
+        triangleMesh3.position.set(-2.5, 1.5, 0.0);
+        scene.add(triangleMesh3);
+        triangleMeshAnimation = new THREE.Mesh(
+          triangleGeometry2,
+          triangleMaterial2
+        );
+        triangleMeshAnimation.position.set(-2.5, 3.0, 0.0);
+        scene.add(triangleMeshAnimation);
+        triangleMeshAnimation2 = new THREE.Mesh(
+          triangleGeometry2,
+          triangleMaterial2
+        );
+        triangleMeshAnimation2.position.set(-2.5, 0.0, 0.0);
+        scene.add(triangleMeshAnimation2);
+        triangleMeshAnimation3 = new THREE.Mesh(
+          triangleGeometry2,
+          triangleMaterial2
+        );
+        triangleMeshAnimation3.position.set(-2.5, 1.5, 0.0);
+        scene.add(triangleMeshAnimation3);
+
+        // The creation of the square is done in the same way as the triangle.
+        // 1. Instantiate the geometry object
+        // 2. Add the vertices
+        // 3. Define the faces by setting the vertices indices
+        var squareGeometry = new THREE.Geometry();
+        squareGeometry.vertices.push(new THREE.Vector3(-1.0, 1.0, 0.0));
+        squareGeometry.vertices.push(new THREE.Vector3(1.0, 1.0, 0.0));
+        squareGeometry.vertices.push(new THREE.Vector3(1.0, -1.0, 0.0));
+        squareGeometry.vertices.push(new THREE.Vector3(-1.0, -1.0, 0.0));
+        //squareGeometry.faces.push(new THREE.Face4(0, 1, 2, 3));         //No more Face4 in Three.js
+        squareGeometry.faces.push(new THREE.Face3(0, 1, 2));
+        squareGeometry.faces.push(new THREE.Face3(0, 2, 3));
+
+        var squareGeometry2 = new THREE.Geometry();
+        squareGeometry2.vertices.push(new THREE.Vector3(-0.5, 0.5, 0.0));
+        squareGeometry2.vertices.push(new THREE.Vector3(0.5, 0.5, 0.0));
+        squareGeometry2.vertices.push(new THREE.Vector3(0.5, -0.5, 0.0));
+        squareGeometry2.vertices.push(new THREE.Vector3(-0.5, -0.5, 0.0));
+        squareGeometry2.faces.push(new THREE.Face3(0, 1, 2));
+        squareGeometry2.faces.push(new THREE.Face3(0, 2, 3));
+
+        // Create a white basic material and activate the 'Doubleside' attribute
+        // (alternatives are: 'FrontSide' and 'BackSide')
+        var squareMaterial = new THREE.MeshBasicMaterial({
+          color: 0x375426,
+          side: THREE.DoubleSide,
+        });
+
+        var squareGeometry3 = new THREE.Geometry();
+        squareGeometry3.vertices.push(new THREE.Vector3(0, 0.5, -0.5));
+        squareGeometry3.vertices.push(new THREE.Vector3(0, 0.5, 0.5));
+        squareGeometry3.vertices.push(new THREE.Vector3(0, -0.5, 0.5));
+        squareGeometry3.vertices.push(new THREE.Vector3(0, -0.5, -0.5));
+        squareGeometry3.faces.push(new THREE.Face3(0, 1, 2));
+        squareGeometry3.faces.push(new THREE.Face3(0, 2, 3));
+
+        SquareTreeMesh = new THREE.Mesh(squareGeometry2, squareMaterial);
+        SquareTreeMesh.position.set(-2.5, -1.5, 0.0);
+        scene.add(SquareTreeMesh);
+        SquareTreeMesh2 = new THREE.Mesh(squareGeometry3, squareMaterial);
+        SquareTreeMesh2.position.set(-2.5, -1.5, 0.0);
+        scene.add(SquareTreeMesh2);
+        // Create a mesh and insert the geometry and the material. Translate the whole mesh
+        // by 1.5 on the x axis and by 4 on the z axis and add the mesh to the scene.
+        squareMesh = new THREE.Mesh(squareGeometry, squareMaterial);
+        squareMesh.position.set(2.5, 0.0, -1.0);
+        scene.add(squareMesh);
+
+        var triangleGeometry = new THREE.Geometry();
+        triangleGeometry.vertices.push(new THREE.Vector3(0.0, 0.5, 0.0));
+        triangleGeometry.vertices.push(new THREE.Vector3(-1.0, -0.5, 0.0));
+        triangleGeometry.vertices.push(new THREE.Vector3(1.0, -0.5, 0.0));
+        triangleGeometry.faces.push(new THREE.Face3(0, 1, 2));
+        var triangleHouseMaterial = new THREE.MeshBasicMaterial({
+          color: 0xffa000,
+          side: THREE.DoubleSide,
+        });
+        TriangleMeshHouse = new THREE.Mesh(
+          triangleGeometry,
+          triangleHouseMaterial
+        );
+        TriangleMeshHouse.position.set(2.5, 1.5, -1.0);
+        scene.add(TriangleMeshHouse);
+
+        var circleGeometry = new THREE.CircleGeometry(0.2, 32);
+        var circleMaterial = new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          side: THREE.DoubleSide,
+        });
+        circle = new THREE.Mesh(circleGeometry, circleMaterial);
+        circle.position.set(-14, 0, -2);
+        circle2 = new THREE.Mesh(circleGeometry, circleMaterial);
+        circle2.position.set(-12, 0, -2);
+        scene.add(circle);
+        scene.add(circle2);
+
+        var LightsGeometry = new THREE.Geometry();
+        LightsGeometry.vertices.push(new THREE.Vector3(0.0, 0, 0.0));
+        LightsGeometry.vertices.push(new THREE.Vector3(2.0, 0.5, 0.0));
+        LightsGeometry.vertices.push(new THREE.Vector3(2.0, -0.5, 0.0));
+        LightsGeometry.faces.push(new THREE.Face3(0, 1, 2));
+        var LightsMaterial = new THREE.MeshBasicMaterial({
+          color: 0xfff36d,
+          side: THREE.DoubleSide,
+        });
+        LightsMesh = new THREE.Mesh(LightsGeometry, LightsMaterial);
+        LightsMesh.position.set(-12, 0.3, -2.01);
+        scene.add(LightsMesh);
+
+        var squareCarBottomGeometry = new THREE.Geometry();
+        squareCarBottomGeometry.vertices.push(
+          new THREE.Vector3(-1.5, 0.25, 0.0)
+        );
+        squareCarBottomGeometry.vertices.push(
+          new THREE.Vector3(1.5, 0.25, 0.0)
+        );
+        squareCarBottomGeometry.vertices.push(
+          new THREE.Vector3(1.5, -0.25, 0.0)
+        );
+        squareCarBottomGeometry.vertices.push(
+          new THREE.Vector3(-1.5, -0.25, 0.0)
+        );
+        squareCarBottomGeometry.faces.push(new THREE.Face3(0, 1, 2));
+        squareCarBottomGeometry.faces.push(new THREE.Face3(0, 2, 3));
+
+        SquareCarBottomMesh = new THREE.Mesh(
+          squareCarBottomGeometry,
+          circleMaterial
+        );
+
+        SquareCarBottomMesh.position.set(-13, 0.3, -2);
+        scene.add(SquareCarBottomMesh);
+
+        var squareCarTopGeometry = new THREE.Geometry();
+        squareCarTopGeometry.vertices.push(new THREE.Vector3(-0.7, 0.4, 0.0));
+        squareCarTopGeometry.vertices.push(new THREE.Vector3(0.7, 0.4, 0.0));
+        squareCarTopGeometry.vertices.push(new THREE.Vector3(0.7, -0.4, 0.0));
+        squareCarTopGeometry.vertices.push(new THREE.Vector3(-0.7, -0.4, 0.0));
+        squareCarTopGeometry.faces.push(new THREE.Face3(0, 1, 2));
+        squareCarTopGeometry.faces.push(new THREE.Face3(0, 2, 3));
+
+        SquareCarTopMesh = new THREE.Mesh(squareCarTopGeometry, circleMaterial);
+
+        SquareCarTopMesh.position.set(-13, 0.55, -2);
+        scene.add(SquareCarTopMesh);
+
+        // Interaktywna choinka
+        var pyramidGeometry = new THREE.CylinderGeometry(0, 1, 1.8, 360, false);
+        pyramidMesh = new THREE.Mesh(pyramidGeometry, triangleMaterial);
+        pyramidMesh2 = new THREE.Mesh(pyramidGeometry, triangleMaterial2);
+        pyramidMesh3 = new THREE.Mesh(pyramidGeometry, triangleMaterial);
+
+        pyramidMesh.position.set(0, 0.0, -7.0);
+        pyramidMesh2.position.set(0, 1.5, -7.0);
+        pyramidMesh3.position.set(0, 3.0, -7.0);
+        scene.add(pyramidMesh);
+        scene.add(pyramidMesh2);
+        scene.add(pyramidMesh3);
+
+        SquareTreeMesh3 = new THREE.Mesh(squareGeometry2, squareMaterial);
+        SquareTreeMesh3.position.set(0, -1.3, -7.0);
+        scene.add(SquareTreeMesh3);
+        SquareTreeMesh4 = new THREE.Mesh(squareGeometry3, squareMaterial);
+        SquareTreeMesh4.position.set(0, -1.3, -7.0);
+        scene.add(SquareTreeMesh4);
+      }
+
+      /**
+       * Render the scene. Map the 3D world to the 2D screen.
+       */
+      function animateScene() {
+        // At first, we increase the y rotation of the triangle mesh and decrease the x
+        // rotation of the square mesh.
+
+        // Increase the y rotation of the triangle
+        triangleMesh.rotation.y += 0.1;
+        triangleMesh2.rotation.y += 0.1;
+        triangleMesh3.rotation.y += 0.1;
+        triangleMeshAnimation.rotation.y += 0.1;
+        triangleMeshAnimation2.rotation.y += 0.1;
+        triangleMeshAnimation3.rotation.y += 0.1;
+        SquareTreeMesh.rotation.y += 0.1;
+        SquareTreeMesh2.rotation.y += 0.1;
+
+        circle.position.x += 0.1;
+        circle2.position.x += 0.1;
+        SquareCarBottomMesh.position.x += 0.1;
+        SquareCarTopMesh.position.x += 0.1;
+        LightsMesh.position.x += 0.1;
+
+        // Decrease the x rotation of the square
+        //squareMesh.rotation.x -= 0.075;
+
+        // Define the function, which is called by the browser supported timer loop. If the
+        // browser tab is not visible, the animation is paused. So 'animateScene()' is called
+        // in a browser controlled loop.
+        requestAnimationFrame(animateScene);
+
+        // Map the 3D scene down to the 2D screen (render the frame)
+        renderScene();
+      }
+
+      function renderScene() {
+        renderer.render(scene, camera);
+      }
+    </script>
+  </body>
+</html>

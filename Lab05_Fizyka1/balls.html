@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title></title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="viewport"></div>
+
+    <script src="three.min.js"></script>
+    <script src="physi.js"></script>
+    <script>
+      var container, scene, renderer, camera, light, ball, plane;
+      var WIDTH, HEIGHT, VIEW_ANGLE, ASPECT, NEAR, FAR;
+
+      var clock = new THREE.Clock();
+
+      Physijs.scripts.worker = "physijs_worker.js";
+      Physijs.scripts.ammo = "ammo.js";
+
+      container = document.querySelector(".viewport");
+
+      (WIDTH = window.innerWidth), (HEIGHT = window.innerHeight);
+
+      (VIEW_ANGLE = 45), (ASPECT = WIDTH / HEIGHT), (NEAR = 1), (FAR = 10000);
+
+      scene = new Physijs.Scene();
+      scene.setGravity(new THREE.Vector3(0, -50, 0));
+      scene.addEventListener("update", function () {
+        scene.simulate(undefined, 2);
+      });
+
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+      });
+
+      renderer.setSize(WIDTH, HEIGHT);
+      renderer.shadowMapEnabled = true;
+      renderer.shadowMapSoft = true;
+      renderer.shadowMapType = THREE.PCFShadowMap;
+      renderer.shadowMapAutoUpdate = true;
+
+      container.appendChild(renderer.domElement);
+
+      camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
+
+      camera.position.set(60, 40, 120);
+      camera.lookAt(scene.position);
+      scene.add(camera);
+
+      light = new THREE.DirectionalLight(0xffffff);
+
+      light.position.set(0, 100, 60);
+      light.castShadow = true;
+      light.shadowCameraLeft = -60;
+      light.shadowCameraTop = -60;
+      light.shadowCameraRight = 60;
+      light.shadowCameraBottom = 60;
+      light.shadowCameraNear = 1;
+      light.shadowCameraFar = 1000;
+      light.shadowBias = -0.0001;
+      light.shadowMapWidth = light.shadowMapHeight = 1024;
+      light.shadowDarkness = 0.7;
+
+      scene.add(light);
+
+      plane = new Physijs.BoxMesh(
+        new THREE.CubeGeometry(60, 60, 2, 10, 10),
+        Physijs.createMaterial(
+          new THREE.MeshLambertMaterial({
+            color: 0xeeeeee,
+          }),
+          0.4,
+          0.99
+        ),
+        0
+      );
+
+      plane.rotation.x = -Math.PI / 2;
+      plane.rotation.y = Math.PI / 24;
+      plane.receiveShadow = true;
+
+      scene.add(plane);
+
+      // Dodanie przeszkody
+      obstacle = new Physijs.BoxMesh(
+        new THREE.CubeGeometry(10, 2, 10),
+        Physijs.createMaterial(
+          new THREE.MeshLambertMaterial({
+            color: 0x00ff00, // Zielony kolor
+          }),
+          0.4,
+          0.99
+        ),
+        0
+      );
+
+      obstacle.position.y = 4;
+      obstacle.receiveShadow = true;
+      scene.add(obstacle);
+
+      setInterval(function () {
+        ball = new Physijs.SphereMesh(
+          new THREE.SphereGeometry(Math.random() * (4 - 1) + 1, 16, 16),
+          Physijs.createMaterial(
+            new THREE.MeshLambertMaterial({
+              color: 0xff0000,
+              reflectivity: 0.8,
+            }),
+            1,
+            1
+          ),
+          1.4
+        );
+
+        var r = {
+          x: Math.random() * (Math.PI - Math.PI / 12) + Math.PI / 12,
+          y: Math.random() * (Math.PI - Math.PI / 12) + Math.PI / 12,
+          z: Math.random() * (Math.PI - Math.PI / 12) + Math.PI / 12,
+        };
+
+        ball.rotation.set(r.x, r.y, r.z);
+        ball.position.y = 40;
+        ball.castShadow = true;
+        ball.receiveShadow = true;
+
+        scene.add(ball);
+      }, 100);
+
+      // Utworzenie dolnej części pudła (bez wypełnienia)
+      var bottomBoxGeometry = new THREE.CubeGeometry(100, 1, 100);
+      var bottomBoxMaterial = new THREE.MeshLambertMaterial({
+        color: 0x00ff00, // Zielony kolor
+        transparent: true,
+        opacity: 0.5,
+        side: THREE.DoubleSide,
+      });
+
+      // Utworzenie ścian pudła (otwarte z boków)
+      var boxMaterial = Physijs.createMaterial(
+        new THREE.MeshLambertMaterial({
+          color: 0x00ff00, // Zielony kolor
+          transparent: true,
+          opacity: 0.5,
+          side: THREE.DoubleSide,
+        }),
+        0.4,
+        0.99
+      );
+
+      var boxGeometry = new THREE.CubeGeometry(100, 10, 1);
+
+      var leftWall = new Physijs.BoxMesh(boxGeometry, boxMaterial, 0);
+      leftWall.position.y = -20;
+      leftWall.position.z = -50;
+      scene.add(leftWall);
+
+      var rightWall = new Physijs.BoxMesh(boxGeometry, boxMaterial, 0);
+      rightWall.position.y = -20;
+      rightWall.position.z = 50;
+      scene.add(rightWall);
+
+      var backWall = new Physijs.BoxMesh(boxGeometry, boxMaterial, 0);
+      backWall.rotation.y = Math.PI / 2;
+      backWall.position.y = -20;
+      backWall.position.x = -50;
+      scene.add(backWall);
+
+      var frontWall = new Physijs.BoxMesh(boxGeometry, boxMaterial, 0);
+      frontWall.rotation.y = Math.PI / 2;
+      frontWall.position.y = -20;
+      frontWall.position.x = 50;
+      scene.add(frontWall);
+
+      var bottomWall = new Physijs.BoxMesh(
+        bottomBoxGeometry,
+        bottomBoxMaterial,
+        0
+      );
+      bottomWall.position.y = -25;
+      scene.add(bottomWall);
+
+      // Huśtanie się podłoża
+      var oscillation = 0;
+
+      function animateGround() {
+        oscillation += 0.01;
+
+        plane.__dirtyRotation = true;
+        plane.rotation.y = Math.sin(oscillation) * 0.3;
+
+        requestAnimationFrame(animateGround);
+      }
+
+      animateGround();
+
+      render();
+      scene.simulate();
+
+      function render() {
+        for (var i = 5; i < scene.children.length - 5; i++) {
+          var obj = scene.children[i];
+
+          //if (obj.position.y <= -50) {
+          //  scene.remove(obj);
+          //}
+        }
+        renderer.render(scene, camera);
+        requestAnimationFrame(render);
+      }
+    </script>
+  </body>
+</html>
